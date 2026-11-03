@@ -1,0 +1,1 @@
+Orient is a small, calm search engine. You type what you’re curious about, it looks in many places at once, and it brings everything back as one clean list. No accounts, no ads, no feed trying to keep you here.
