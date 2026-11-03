@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Orient</ShortName>
+  <Description>Orient: find your way, quietly.</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <!-- Replace the address below with where you host index.html. Keep ?q={searchTerms} at the end. -->
+  <Url type="text/html" method="get" template="https://YOUR-NAME.github.io/orient/?q={searchTerms}"/>
+</OpenSearchDescription>

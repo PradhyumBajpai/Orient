@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#04283a">
+<title>Orient</title>
+<meta name="description" content="Orient: find your way, quietly.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%2304283a' stroke='%232fd5a0' stroke-width='4'/%3E%3Cpath d='M32 9l7 23-7 23-7-23z' fill='%234fc3ff'/%3E%3C/svg%3E">
+<link rel="search" type="application/opensearchdescription+xml" title="Orient" href="opensearch.xml">
+<style>
+:root{--ink:#e9fffb;--mute:#9fd4cf;--deep:#04283a;--green:#2fd5a0;--sky:#4fc3ff;--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.15);--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:15px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--deep);overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+#app{position:relative;height:100%;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(160deg,#04283a,#0a5a73 55%,#0e8c86)}
+@supports(height:100dvh){#app{height:100dvh}}
+#app::before{content:"";position:absolute;width:560px;height:560px;left:8%;top:-20%;border-radius:50%;background:radial-gradient(circle,rgba(47,213,160,.32),transparent 65%);animation:drift 16s ease-in-out infinite alternate;pointer-events:none}
+@keyframes drift{to{transform:translate(38vw,14vh) scale(1.25)}}
+.waves{position:absolute;left:0;bottom:0;width:200%;height:170px;animation:flow 22s linear infinite;pointer-events:none;transition:opacity .8s}
+.waves.b{height:130px;animation-duration:34s;animation-direction:reverse}
+body.res .waves{opacity:.3}
+@keyframes flow{to{transform:translateX(-50%)}}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}}
+.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+#top{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:calc(clamp(36px,19vh,180px) + env(safe-area-inset-top,0px)) 16px 8px;background:rgba(2,26,38,0);border-bottom:1px solid transparent;transition:padding .6s var(--ease),gap .6s var(--ease),background .6s,border-color .6s}
+body.res #top{gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) clamp(14px,3vw,40px) 12px;background:rgba(2,26,38,.62);border-color:var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#top>*{animation:rise .8s var(--ease) both;animation-delay:calc(var(--n,0)*.09s)}
+#brand{display:flex;align-items:center;gap:14px;background:none;border:0;cursor:pointer}
+#brand svg{width:72px;height:72px;transition:width .6s var(--ease),height .6s var(--ease)}
+.word{font:600 clamp(44px,9vw,74px)/1 Georgia,"Palatino Linotype",serif;background:linear-gradient(90deg,var(--green),var(--sky));-webkit-background-clip:text;background-clip:text;color:transparent;transition:font-size .6s var(--ease)}
+body.res #brand svg{width:30px;height:30px}
+body.res .word{font-size:28px}
+.needle{transform-origin:32px 32px;animation:sway 7s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-25deg)}to{transform:rotate(55deg)}}
+#tag{color:var(--mute);font-size:16px;max-height:30px;overflow:hidden;transition:max-height .5s var(--ease),opacity .4s,margin .5s var(--ease)}
+body.res #tag{max-height:0;opacity:0;margin-top:-10px}
+
+#f{display:flex;width:min(100%,760px);height:52px;border-radius:26px;background:rgba(255,255,255,.12);border:1px solid var(--line);overflow:hidden;transition:box-shadow .3s,border-color .3s,background .3s}
+#f:focus-within{border-color:var(--green);background:rgba(255,255,255,.2);box-shadow:0 0 0 5px rgba(47,213,160,.2)}
+#q{flex:1;min-width:0;background:none;border:0;outline:0;padding:0 20px;color:var(--ink);font:inherit;font-size:16px}
+#q::placeholder{color:var(--mute)}
+#f button{width:62px;border:0;cursor:pointer;color:#04283a;background:linear-gradient(135deg,var(--green),var(--sky));display:grid;place-items:center;transition:filter .2s,width .3s var(--ease)}
+#f button:hover{filter:brightness(1.1);width:70px}
+
+#seg{position:relative;display:flex;max-width:min(100%,640px);padding:4px;border-radius:22px;background:rgba(255,255,255,.1);border:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+#seg::-webkit-scrollbar{display:none}
+#seg::before{content:"";position:absolute;top:4px;bottom:4px;left:0;width:var(--w,70px);border-radius:18px;background:linear-gradient(135deg,var(--green),var(--sky));transform:translateX(var(--x,4px));transition:transform .5s var(--ease),width .5s var(--ease)}
+#seg button{position:relative;z-index:1;flex:none;height:36px;padding:0 13px;border:0;background:none;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:color .3s}
+#seg button[aria-selected=true]{color:#04283a}
+#seg .add{width:36px;padding:0;font-size:22px;font-weight:400;color:var(--green)}
+#load{position:absolute;left:0;right:0;bottom:-1px;height:3px;overflow:hidden;opacity:0;transition:opacity .35s;pointer-events:none}
+#load.on{opacity:1}
+#load::before{content:"";position:absolute;top:0;bottom:0;width:40%;background:linear-gradient(90deg,transparent,var(--green),var(--sky),transparent);animation:slide 1.2s ease-in-out infinite}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+@media(min-width:900px){
+  body.res #top{flex-direction:row;align-items:center;gap:22px}
+  body.res #f{flex:1;width:auto;max-width:none}
+  body.res #seg{flex:none}
+}
+
+#res{position:relative;z-index:1;flex:1;overflow-y:auto;padding:14px clamp(14px,3vw,40px) calc(40px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.rin{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px;align-content:start}
+.msg{grid-column:1/-1;color:var(--mute);padding:18px 2px}
+.r{display:block;padding:14px 16px;border-radius:16px;color:inherit;text-decoration:none;background:var(--glass);border:1px solid var(--line);animation:rise .55s var(--ease) both;animation-delay:calc(var(--n,0)*.04s);transition:background .2s,transform .3s var(--ease),border-color .2s}
+.r:hover{background:rgba(255,255,255,.15);border-color:rgba(47,213,160,.5);transform:translateY(-3px)}
+.r b{display:block;font-size:16px;font-weight:600;color:#bff7e6;overflow-wrap:anywhere}
+.r i{display:flex;gap:8px;align-items:center;font-style:normal;font-size:12.5px;color:var(--green);margin:2px 0 4px}
+.r u{text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r em{font-style:normal;flex:none;padding:0 8px;border-radius:9px;background:rgba(79,195,255,.2);color:var(--sky)}
+.r span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--mute);font-size:14px;overflow-wrap:anywhere}
+
+#sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;visibility:hidden;opacity:0;background:rgba(2,18,28,.65);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .35s,visibility 0s .35s}
+#sheet.on{visibility:visible;opacity:1;transition-delay:0s}
+.card{width:min(100%,560px);max-height:90dvh;overflow-y:auto;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;background:#06364a;border:1px solid var(--line);transform:translateY(40px);transition:transform .5s var(--ease)}
+#sheet.on .card{transform:none}
+@media(min-width:700px){#sheet{align-items:center}.card{border-radius:24px}}
+.card h2{font:600 24px Georgia,serif;margin-bottom:6px}
+.card h3{font-size:15px;font-weight:600;color:var(--green);margin:20px 0 6px}
+.card label{display:block;font-size:13px;color:var(--mute)}
+.card details{margin:8px 0;color:var(--mute);font-size:14px}
+.card summary{cursor:pointer;padding:6px 0}
+.in{display:block;width:100%;min-height:42px;margin:4px 0 10px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--ink);font:inherit;font-size:16px}
+textarea.in{padding:10px 12px;resize:vertical}
+.pill{border:0;border-radius:18px;padding:9px 18px;cursor:pointer;font-weight:600;color:#04283a;background:linear-gradient(135deg,var(--green),var(--sky));transition:filter .2s,transform .25s var(--ease)}
+.pill:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.pill.q{background:var(--glass);color:var(--ink);border:1px solid var(--line)}
+.hint{font-size:13px;color:var(--mute);margin:4px 0}
+.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row button{border:0;background:none;cursor:pointer;color:var(--mute);font-size:20px}
+.opt{display:flex;gap:18px;flex-wrap:wrap;font-size:15px}
+.opt label{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:15px}
+.more{grid-column:1/-1;justify-self:center;margin:12px 0 6px;padding:12px 30px}
+.more:disabled{opacity:.6;cursor:default}
+@media(max-height:520px){body:not(.res) #top{padding-top:14px;gap:8px}body:not(.res) #brand svg{width:40px;height:40px}body:not(.res) .word{font-size:34px}}
+@media(prefers-reduced-motion:reduce){*,*::before{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2fd5a0"/><stop offset="1" stop-color="#4fc3ff"/></linearGradient>
+<path id="w" d="M0 80C240 20 480 20 720 80S1200 140 1440 80S1920 20 2160 80S2640 140 2880 80V160H0Z"/>
+</defs></svg>
+
+<div id="app">
+  <svg class="waves" viewBox="0 0 2880 160" preserveAspectRatio="none" fill="rgba(47,213,160,.16)" aria-hidden="true"><use href="#w"/></svg>
+  <svg class="waves b" viewBox="0 0 2880 160" preserveAspectRatio="none" fill="rgba(79,195,255,.14)" aria-hidden="true"><use href="#w"/></svg>
+
+  <header id="top">
+    <button id="brand" style="--n:0" aria-label="Orient home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="url(#g)" stroke-width="3"/><g class="needle"><path d="M32 9l7 23-7 23-7-23z" fill="url(#g)"/></g><circle cx="32" cy="32" r="3.2" fill="#04283a"/></svg>
+      <span class="word">Orient</span>
+    </button>
+    <p id="tag" style="--n:1">Find your way, quietly.</p>
+    <form id="f" style="--n:2" autocomplete="off">
+      <input id="q" name="q" type="text" enterkeyhint="search" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Search" aria-label="Search">
+      <button aria-label="Search"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <div id="seg" style="--n:3" role="tablist" aria-label="Search type"></div>
+    <div id="load"></div>
+  </header>
+
+  <main id="res"><div class="rin" id="out"></div></main>
+</div>
+
+<div id="sheet"><div class="card" role="dialog" aria-label="Options">
+  <h2>Options</h2>
+    <h3>When you open a result</h3>
+  <div class="opt"><label><input type="radio" name="ot" value="_self"> Same tab</label><label><input type="radio" name="ot" value="_blank"> New tab</label></div>
+  <h3>Use Orient as your browser’s search</h3>
+  <label>Where this page is hosted (its web address)<input class="in" id="chost" inputmode="url" placeholder="https://yourname.github.io/orient.html"></label>
+  <label>Search address to give your browser<input class="in" id="ctpl" readonly></label>
+  <button class="pill q" id="ccopy">Copy address</button>
+  <button class="pill q" id="cxml">Download opensearch.xml</button>
+  <p class="hint" id="cthint"></p>
+  <p class="hint" id="cmsg"></p>
+  <details><summary>How to add it to your browser</summary>
+    <p class="hint">Chrome or Edge: Settings, Search engine, Manage search engines, Add. Name it Orient, give it a shortcut such as o, and paste the address. Firefox: Settings, Search, Search shortcuts, Add. Safari and most phone browsers don’t allow custom search engines.</p>
+  </details>
+  <p style="margin-top:16px"><button class="pill" id="cdone">Done</button></p>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const enc=encodeURIComponent;
+const q=$('#q');
+const el=(t,c,x)=>{const n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n};
+const getAny=async u=>{
+  const c=new AbortController(),k=setTimeout(()=>c.abort(),9000);
+  try{const r=await fetch(u,{referrerPolicy:'no-referrer',credentials:'omit',signal:c.signal});if(!r.ok)throw 0;return await r.text()}
+  finally{clearTimeout(k)}
+};
+const get=async u=>JSON.parse(await getAny(u));
+const txt=h=>new DOMParser().parseFromString(String(h??''),'text/html').body.textContent.replace(/\s+/g,' ').trim();
+const store={
+  get:k=>{try{return localStorage.getItem(k)}catch{return null}},
+  set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}
+};
+
+/* ---------- search sources: run(query,page) -> [{u,t,d,tag?}] ---------- */
+const wikiSite=(host,n,tag,ns)=>({run:async(s,p)=>(await get('https://'+host+'/w/api.php?action=query&list=search&srsearch='+enc(s)+'&srlimit='+n+'&sroffset='+p*n+(ns?'&srnamespace='+ns:'')+'&format=json&origin=*')).query.search.map(r=>({u:'https://'+host+'/wiki/'+enc(r.title.replace(/ /g,'_')).replace(/%3A/g,':'),t:r.title,d:r.snippet,tag}))});
+const archive=n=>({run:async(s,p)=>(await get('https://archive.org/advancedsearch.php?q='+enc(s.replace(/[^\p{L}\p{N}\s]/gu,' '))+'&fl[]=identifier&fl[]=title&fl[]=description&fl[]=mediatype&rows='+n+'&page='+(p+1)+'&output=json')).response.docs.map(r=>({u:'https://archive.org/details/'+enc(r.identifier),t:[].concat(r.title||r.identifier).join(' '),d:[].concat(r.description||'').join(' '),tag:r.mediatype}))});
+const books=n=>({run:async(s,p)=>(await get('https://openlibrary.org/search.json?q='+enc(s)+'&limit='+n+'&page='+(p+1)+'&fields=key,title,author_name,first_publish_year')).docs.map(r=>({u:'https://openlibrary.org'+r.key,t:r.title,d:[(r.author_name||[]).slice(0,3).join(', '),r.first_publish_year].filter(Boolean).join(' · '),tag:'book'}))});
+const hn=n=>({run:async(s,p)=>(await get('https://hn.algolia.com/api/v1/search?tags=story&query='+enc(s)+'&hitsPerPage='+n+'&page='+p)).hits.filter(h=>h.title).map(h=>({u:h.url||'https://news.ycombinator.com/item?id='+h.objectID,t:h.title,d:(h.points||0)+' points · '+(h.num_comments||0)+' comments',tag:'news'}))});
+const stack=n=>({run:async(s,p)=>(await get('https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&q='+enc(s)+'&site=stackoverflow&pagesize='+n+'&page='+(p+1))).items.map(i=>({u:i.link,t:i.title,d:(i.tags||[]).join(', '),tag:'q&a'}))});
+const papers=n=>({run:async(s,p)=>(await get('https://api.crossref.org/works?query='+enc(s)+'&rows='+n+'&offset='+p*n+'&select=title,URL,container-title,author,issued')).message.items.map(i=>({u:i.URL,t:(i.title||[])[0],d:[(i.author||[]).slice(0,3).map(a=>[a.given,a.family].filter(Boolean).join(' ')).join(', '),(i['container-title']||[])[0],((i.issued||{})['date-parts']||[[]])[0][0]].filter(Boolean).join(' · '),tag:'paper'})).filter(x=>x.t)});
+const code=n=>({run:async(s,p)=>(await get('https://api.github.com/search/repositories?q='+enc(s)+'&per_page='+n+'&page='+(p+1))).items.map(r=>({u:r.html_url,t:r.full_name,d:r.description||'',tag:'code'}))});
+const places=n=>({run:async(s,p)=>p?[]:(await get('https://nominatim.openstreetmap.org/search?format=jsonv2&limit='+n+'&q='+enc(s))).map(r=>({u:'https://www.openstreetmap.org/'+r.osm_type+'/'+r.osm_id,t:r.name||String(r.display_name).split(',')[0],d:r.display_name,tag:'place'}))});
+const mwmbl={run:async(s,p)=>p?[]:(await get('https://api.mwmbl.org/api/v1/search/?s='+enc(s))).map(r=>({u:r.url,t:r.title.map(x=>x.value).join(''),d:(r.extract||[]).map(x=>x.value).join(' ')}))};
+const margin={run:async(s,p)=>p?[]:(await get('https://api.marginalia.nu/public/search/'+enc(s)+'?count=12')).results.map(r=>({u:r.url,t:r.title,d:r.description}))};
+
+
+const BASE=[['web','Web'],['wiki','Wiki'],['archive','Archive'],['all','Orientall']];
+function sources(m){
+  const W='en.wikipedia.org';
+  const extra=()=>[wikiSite('commons.wikimedia.org',3,'media',6),wikiSite('en.wikivoyage.org',2,'travel'),places(3)];
+  if(m==='web')return[mwmbl,margin,wikiSite(W,3),hn(4),stack(4),...extra()];
+  if(m==='wiki')return[wikiSite(W,12),wikiSite('en.wiktionary.org',4,'wiktionary'),wikiSite('en.wikibooks.org',4,'wikibooks')];
+  if(m==='archive')return[archive(14),books(10)];
+  if(m==='all')return[mwmbl,margin,wikiSite(W,6),hn(4),stack(4),...extra(),archive(6),books(4),papers(4),code(4)];
+  return [];
+}
+const mix=ls=>{const o=[],n=Math.max(0,...ls.map(l=>l.length));for(let i=0;i<n;i++)ls.forEach(l=>l[i]&&o.push(l[i]));return o};
+
+/* ---------- state ---------- */
+let mode='web',run=0,cur=null;
+const framed=(()=>{try{return top!==self}catch{return true}})();
+let OPEN=store.get('orient.t')||(framed?'_blank':'_self');
+
+function renderSeg(){
+  const seg=$('#seg');seg.replaceChildren();
+  BASE.forEach(([id,n])=>{
+    const b=el('button',null,n);b.setAttribute('role','tab');b.dataset.m=id;
+    b.onclick=()=>setMode(id,true);seg.append(b);
+  });
+  const a=el('button','add','⋯');a.setAttribute('aria-label','Options');a.onclick=()=>sheet(true);seg.append(a);
+  mark();
+}
+function mark(){
+  const seg=$('#seg');let on=null;
+  seg.querySelectorAll('[role=tab]').forEach(b=>{const s=b.dataset.m===mode;b.setAttribute('aria-selected',s);if(s)on=b});
+  if(!on){mode='web';return mark()}
+  seg.style.setProperty('--x',on.offsetLeft+'px');
+  seg.style.setProperty('--w',on.offsetWidth+'px');
+  if(seg.scrollWidth>seg.clientWidth)on.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+function setMode(id,go){mode=id;mark();if(go&&q.value.trim())search(q.value)}
+
+let own=0;
+function push(s){
+  const p=new URLSearchParams();if(s){p.set('q',s);p.set('m',mode)}
+  try{const u=new URL(location.href);u.search=p.toString();u.hash='';history.pushState(null,'',u)}
+  catch{try{if(location.hash.slice(1)!==p.toString()){own=Date.now();location.hash=p.toString()}}catch{}}
+}
+
+const keyOf=u=>u.replace(/^https?:\/\/(www\.)?/i,'').replace(/#.*$/,'').replace(/\/$/,'').toLowerCase();
+async function pull(){
+  const {s,page,seen,m}=cur;
+  const res=await Promise.allSettled(sources(m).map(x=>x.run(s,page)));
+  const raw=mix(res.map(r=>r.status==='fulfilled'?r.value:[]));
+  const list=raw.filter(x=>{
+    if(!x||!/^https?:\/\//i.test(x.u))return false;
+    const k=keyOf(x.u);
+    return seen.has(k)?false:(seen.add(k),true);
+  });
+  return {list,raw:raw.length,dead:res.every(r=>r.status==='rejected')};
+}
+function cards(list){
+  const f=document.createDocumentFragment();
+  list.forEach((x,n)=>{
+    const a=el('a','r');
+    a.href=x.u;a.target=OPEN;a.rel='noopener noreferrer';a.style.setProperty('--n',Math.min(n,14));
+    const meta=el('i');
+    meta.append(el('u',null,x.u.replace(/^https?:\/\/(www\.)?/,'')));
+    if(x.tag)meta.append(el('em',null,x.tag));
+    a.append(el('b',null,txt(x.t)||x.u),meta,el('span',null,txt(x.d).slice(0,240)));
+    f.append(a);
+  });
+  return f;
+}
+function more(){
+  const b=el('button','pill more','Load more results');
+  b.onclick=load;$('#out').append(b);
+}
+async function load(){
+  const id=run,b=$('.more');
+  b.disabled=true;b.textContent='Loading…';
+  $('#load').classList.add('on');
+  let r={list:[],raw:0,dead:false};
+  for(let k=0;k<3;k++){            // skip pages that only held results we already showed
+    cur.page++;
+    r=await pull();
+    if(id!==run)return;
+    if(r.dead){cur.page--;break}
+    if(r.list.length||!r.raw)break;
+  }
+  b.remove();
+  $('#out').append(cards(r.list));
+  if(!r.list.length)$('#out').append(el('p','msg',r.dead?'Couldn’t load more right now. Check your connection.':'That’s everything for now.'));
+  if(r.list.length||r.dead)more();
+  $('#load').classList.remove('on');
+}
+async function search(s,hist=true){
+  s=s.trim();if(!s)return;
+  const id=++run;
+  if(hist)push(s);
+  cur={s,page:0,seen:new Set(),m:mode};
+  document.body.classList.add('res');
+  document.title=s+' – Orient';
+  $('#out').replaceChildren(el('p','msg','Searching…'));
+  $('#load').classList.add('on');
+  const r=await pull();
+  if(id!==run)return;
+  const out=cards(r.list);
+  if(!r.list.length)out.append(el('p','msg',r.dead?'Couldn’t get any results. Check your connection and try again.':'No results. Try different words, or switch the search type.'));
+  $('#out').replaceChildren(out);
+  if(r.list.length)more();
+  $('#res').scrollTop=0;
+  $('#load').classList.remove('on');
+}
+
+function home(hist=true){
+  run++;
+  if(hist)push('');
+  document.body.classList.remove('res');
+  document.title='Orient';
+  $('#out').replaceChildren();
+  $('#load').classList.remove('on');
+  q.value='';
+}
+
+/* open from a link like  orient.html?q=cats&m=wiki  (browser search engines use this) */
+function boot(){
+  const p=new URLSearchParams(location.search),h=new URLSearchParams(location.hash.slice(1));
+  const g=k=>p.get(k)??h.get(k);
+  let s=g('q')??g('s')??g('query')??g('search')??'';
+  if(s==='%s')s='';
+  const m=g('m');
+  if(m&&BASE.some(b=>b[0]===m)){mode=m;mark()}
+  if(s.trim()){q.value=s;search(s,false)}else home(false);
+}
+
+/* ---------- options sheet ---------- */
+const tpl=()=>{
+  const h=(store.get('orient.host')||'').trim();
+  if(!h&&framed)return '';                 // an embedded page has no address of its own
+  try{
+    const u=new URL(h||location.href);
+    if(!/^(https?|file):$/.test(u.protocol))return '';
+    u.search='';u.hash='';return u.href+'?q=%s';
+  }catch{return ''}
+};
+function showTpl(){
+  const t=tpl();
+  $('#ctpl').value=t;
+  $('#cthint').textContent=t
+    ?(t.startsWith('file:')?'This is a file on your computer, so it only works on this computer. Host it online to use it anywhere.':'Ready. Add this as a search engine in your browser.')
+    :(framed?'This page is embedded in another site, so it has no search address of its own. Host orient.html at its own web address (free: GitHub Pages) and paste that address above.':'This page has no web address here. Host orient.html online and paste its address above.');
+}
+function sheet(on){
+  $('#sheet').classList.toggle('on',on);
+  if(on){
+    $('#chost').value=store.get('orient.host')||'';showTpl();
+    document.querySelectorAll('[name=ot]').forEach(r=>r.checked=r.value===OPEN);
+  }
+}
+const say=m=>$('#cmsg').textContent=m;
+$('#ccopy').onclick=async()=>{
+  const v=$('#ctpl').value;if(!v)return say('Paste the hosted address first.');
+  try{await navigator.clipboard.writeText(v);say('Copied.')}catch{$('#ctpl').select();say('Press Ctrl+C (or ⌘C) to copy.')}
+};
+document.querySelectorAll('[name=ot]').forEach(r=>r.onchange=()=>{
+  OPEN=r.value;store.set('orient.t',OPEN);
+  document.querySelectorAll('.r').forEach(a=>a.target=OPEN);
+});
+$('#chost').oninput=e=>{store.set('orient.host',e.target.value.trim());showTpl()};
+$('#cxml').onclick=()=>{
+  const t=tpl();
+  if(!t||t.startsWith('file:'))return say('Paste the hosted web address first.');
+  const x='<?xml version="1.0" encoding="UTF-8"?>\n<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">\n  <ShortName>Orient</ShortName>\n  <Description>Orient: find your way, quietly.</Description>\n  <InputEncoding>UTF-8</InputEncoding>\n  <Url type="text/html" method="get" template="'+t.replace('%s','{searchTerms}').replace(/&/g,'&amp;')+'"/>\n</OpenSearchDescription>\n';
+  const a=el('a');a.href=URL.createObjectURL(new Blob([x],{type:'application/xml'}));a.download='opensearch.xml';a.click();
+  say('Upload that file next to index.html.');
+};
+$('#cdone').onclick=()=>sheet(false);
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')sheet(false)};
+
+/* ---------- wiring ---------- */
+$('#f').onsubmit=e=>{e.preventDefault();search(q.value);q.blur()};
+$('#brand').onclick=()=>{home();q.focus()};
+const nav=()=>{if(Date.now()-own>400)boot()};
+addEventListener('popstate',nav);
+addEventListener('hashchange',nav);
+addEventListener('resize',mark);
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')sheet(false);
+  else if(e.key==='/'&&!e.target.matches('input,textarea')){e.preventDefault();q.focus()}
+});
+renderSeg();
+document.fonts&&document.fonts.ready.then(mark);
+boot();
+</script>
+</body>
+</html>
