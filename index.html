@@ -103,6 +103,15 @@ textarea.in{padding:10px 12px;resize:vertical}
 .ph img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.07);transition:opacity .6s,transform .9s var(--ease)}
 .ph img.on{opacity:1;transform:none}
 @media(max-width:380px){.r.has{grid-template-columns:minmax(0,1fr) 72px}.ph{width:72px;height:72px}}
+[hidden]{display:none!important}
+#cols{display:grid;gap:16px;max-width:1500px;margin:0 auto}
+#gbox{order:-1;border-radius:18px;background:#fff;color:#202124;overflow:hidden;animation:rise .6s var(--ease) both}
+#gbox summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:13px 18px;font-weight:600;list-style:none}
+#gbox summary::-webkit-details-marker{display:none}
+#gbox summary::after{content:"▾";transition:transform .35s var(--ease)}
+#gbox[open] summary::after{transform:rotate(180deg)}
+#gcse{padding:0 8px 8px}
+@media(min-width:1100px){#cols.g{grid-template-columns:minmax(0,1fr) 440px;align-items:start}#gbox{order:0;position:sticky;top:0;max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);overflow-y:auto}}
 ::selection{background:rgba(47,213,160,.35)}
 #res{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:rgba(47,213,160,.5) transparent}
 #app::after{content:"";position:absolute;width:520px;height:520px;right:-6%;bottom:-16%;border-radius:50%;background:radial-gradient(circle,rgba(79,195,255,.26),transparent 65%);animation:drift2 20s ease-in-out infinite alternate;pointer-events:none}
@@ -166,7 +175,7 @@ body.res #foot{opacity:0;pointer-events:none}
     <div id="load"></div>
   </header>
 
-  <main id="res"><div class="rin" id="out"></div></main>
+  <main id="res"><div id="cols"><div class="rin" id="out"></div><details id="gbox" hidden><summary>Google results</summary><div id="gcse"></div></details></div></main>
   <button id="up" aria-label="Back to top"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   <footer id="foot"><button id="aboutlink">About Orient</button><span>Made by Pradhyum Bajpai</span></footer>
 </div>
@@ -175,9 +184,6 @@ body.res #foot{opacity:0;pointer-events:none}
   <h2>Options</h2>
     <h3>When you open a result</h3>
   <div class="opt"><label><input type="radio" name="ot" value="_self"> Same tab</label><label><input type="radio" name="ot" value="_blank"> New tab</label></div>
-  <h3>Search connections</h3>
-  <p class="hint">Optional. Connect Google or a search server you run. Saved on this device only, and each server must allow requests from web pages.</p>
-  <div id="conn"></div>
   <h3>Photos</h3>
   <div class="opt"><label><input type="checkbox" id="cph"> Show photos on results</label></div>
   <p class="hint">Photos load from the sites that host them, which can then see your device’s address.</p>
@@ -198,7 +204,7 @@ body.res #foot{opacity:0;pointer-events:none}
     <div class="agrid">
       <article class="acard" style="--n:0"><h2>What Orient is</h2><p>Orient is a small, calm search engine. You type what you’re curious about, it looks in many places at once, and it brings everything back as one clean list. No accounts, no ads, no feed trying to keep you here.</p></article>
       <article class="acard" style="--n:1"><h2>How it works</h2><p>Pick <b>Web</b> for a broad look, <b>Wiki</b> for encyclopedias and reference, or <b>Archive</b> for books, old documents, video and audio. <b>Orientall</b> does all of that together. Orient mixes what it finds, removes duplicates, and lets you load more whenever you want to go deeper.</p></article>
-      <article class="acard" style="--n:2"><h2>Your privacy, honestly</h2><p>Orient has no accounts, no server of its own, and it doesn’t keep a search history. Your search goes straight from your browser to the open services that supply the results, without cookies or a referrer, and those services see it the way any website sees a visitor. This page is hosted on GitHub Pages, which may keep ordinary visit logs. The only thing Orient remembers on your device is a small preference, like whether results open in the same tab.</p></article>
+      <article class="acard" style="--n:2"><h2>Your privacy, honestly</h2><p>Orient has no accounts, no server of its own, and it doesn’t keep a search history. Your search goes straight from your browser to the open services that supply the results, without cookies or a referrer, and those services see it the way any website sees a visitor. On Web searches, Google also shows its own results in a separate box inside Orient and handles that search the way it normally does. This page is hosted on GitHub Pages, which may keep ordinary visit logs. The only thing Orient remembers on your device is a small preference, like whether results open in the same tab.</p></article>
       <article class="acard" style="--n:3"><h2>Everywhere you are</h2><p>Orient fits phones, tablets and big screens. On a computer, press <b>/</b> to jump to the search box, and in your browser’s settings you can make Orient your default search, so every search you type in the address bar starts here.</p></article>
       <article class="acard" style="--n:4"><h2>Good to know</h2><p>Orient is young, and it only knows what its sources know. Some searches will find less than a giant search engine would, and now and then a source may be busy. If a search comes back thin, try another type or different words.</p></article>
       <article class="acard" style="--n:5"><h2>Who made it</h2><p>Orient was made by <b>Pradhyum Bajpai</b>, with a simple wish: that searching should feel quiet, quick and respectful of the person doing it. Thank you for using it.</p></article>
@@ -237,50 +243,16 @@ const stack=n=>({run:async(s,p)=>(await get('https://api.stackexchange.com/2.3/s
 const papers=n=>({run:async(s,p)=>(await get('https://api.crossref.org/works?query='+enc(s)+'&rows='+n+'&offset='+p*n+'&select=title,URL,container-title,author,issued')).message.items.map(i=>({u:i.URL,t:(i.title||[])[0],d:[(i.author||[]).slice(0,3).map(a=>[a.given,a.family].filter(Boolean).join(' ')).join(', '),(i['container-title']||[])[0],((i.issued||{})['date-parts']||[[]])[0][0]].filter(Boolean).join(' · '),tag:'paper'})).filter(x=>x.t)});
 const code=n=>({run:async(s,p)=>(await get('https://api.github.com/search/repositories?q='+enc(s)+'&per_page='+n+'&page='+(p+1))).items.map(r=>({u:r.html_url,t:r.full_name,d:r.description||'',img:r.owner&&r.owner.avatar_url?r.owner.avatar_url+'&s=120':'',tag:'code'}))});
 const places=n=>({run:async(s,p)=>p?[]:(await get('https://nominatim.openstreetmap.org/search?format=jsonv2&limit='+n+'&q='+enc(s))).map(r=>({u:'https://www.openstreetmap.org/'+r.osm_type+'/'+r.osm_id,t:r.name||String(r.display_name).split(',')[0],d:r.display_name,tag:'place'}))});
-/* Connections. To make one work for every visitor, fill its values here.
-   Google needs a free API key (restrict it to your site's address in Google Cloud). */
-const DEF={google:{cx:'13ab3cdf8131c4405',key:''},searxng:{url:''},meili:{url:'',index:'',key:''},typesense:{url:'',collection:'',key:'',by:'title'},opensearch:{url:'',index:'',auth:''}};
-let CFG=JSON.parse(JSON.stringify(DEF));
-try{const c=JSON.parse(store.get('orient.cfg')||'{}');for(const k in CFG)Object.assign(CFG[k],c[k]||{})}catch{}
-const saveCfg=()=>store.set('orient.cfg',JSON.stringify(CFG));
-const base=u=>String(u||'').trim().replace(/\/+$/,'');
-const fld=(o,keys)=>{for(const k of keys){const v=o&&o[k];if(v==null)continue;const t=Array.isArray(v)?v.join(' '):typeof v==='object'?'':String(v);if(t)return t}return ''};
-const doc=o=>({u:fld(o,['url','link','href','uri']),t:fld(o,['title','name','heading','label']),d:fld(o,['description','snippet','summary','content','text','body','abstract']),img:fld(o,['image','img','thumbnail','photo','picture','cover','image_url'])});
-const JH=k=>({'Content-Type':'application/json',...k});
-const google=()=>({run:async(s,p)=>{
-  const g=CFG.google;if(!g.key||!g.cx||p>8)return [];
-  const j=await get('https://www.googleapis.com/customsearch/v1?key='+enc(g.key)+'&cx='+enc(g.cx)+'&num=10&start='+(p*10+1)+'&q='+enc(s));
-  return (j.items||[]).map(i=>({u:i.link,t:i.title,d:i.snippet,img:((((i.pagemap||{}).cse_thumbnail)||[])[0]||{}).src||''}));
-}});
-const searx=()=>({run:async(s,p)=>{
-  const c=CFG.searxng;if(!c.url)return [];
-  const j=await get(base(c.url)+'/search?format=json&q='+enc(s)+'&pageno='+(p+1));
-  return (j.results||[]).map(r=>({u:r.url,t:r.title,d:r.content,img:r.thumbnail||r.img_src||''}));
-}});
-const meili=()=>({run:async(s,p)=>{
-  const c=CFG.meili;if(!c.url||!c.index)return [];
-  const j=await get(base(c.url)+'/indexes/'+enc(c.index)+'/search',{method:'POST',headers:JH(c.key?{Authorization:'Bearer '+c.key}:{}),body:JSON.stringify({q:s,limit:10,offset:p*10})});
-  return (j.hits||[]).map(doc);
-}});
-const typesense=()=>({run:async(s,p)=>{
-  const c=CFG.typesense;if(!c.url||!c.collection||!c.key)return [];
-  const j=await get(base(c.url)+'/collections/'+enc(c.collection)+'/documents/search?q='+enc(s)+'&query_by='+enc(c.by||'title')+'&per_page=10&page='+(p+1)+'&x-typesense-api-key='+enc(c.key));
-  return (j.hits||[]).map(h=>doc(h.document||{}));
-}});
-const opensearch=()=>({run:async(s,p)=>{
-  const c=CFG.opensearch;if(!c.url||!c.index)return [];
-  const j=await get(base(c.url)+'/'+enc(c.index)+'/_search',{method:'POST',headers:JH(c.auth?{Authorization:'Basic '+btoa(c.auth)}:{}),body:JSON.stringify({from:p*10,size:10,query:{simple_query_string:{query:s}}})});
-  return ((j.hits||{}).hits||[]).map(h=>doc(h._source||{}));
-}});
 const mwmbl={run:async(s,p)=>p?[]:(await get('https://api.mwmbl.org/api/v1/search/?s='+enc(s))).map(r=>({u:r.url,t:r.title.map(x=>x.value).join(''),d:(r.extract||[]).map(x=>x.value).join(' ')}))};
 const margin={run:async(s,p)=>p?[]:(await get('https://api.marginalia.nu/public/search/'+enc(s)+'?count=12')).results.map(r=>({u:r.url,t:r.title,d:r.description}))};
 
 
+const GOOGLE_CX='62a37409deb0548c1';   // your Programmable Search Engine ID
 const BASE=[['web','Web'],['wiki','Wiki'],['archive','Archive'],['all','Orientall']];
 function sources(m){
   const wp=n=>wikiSite('en.wikipedia.org',n);
   const fam=(a,b)=>[wp(a),wikiSite('en.wiktionary.org',b,'wiktionary'),wikiSite('en.wikibooks.org',b,'wikibooks'),wikiSite('en.wikisource.org',b,'wikisource'),wikidata(b),wikiSite('commons.wikimedia.org',b,'media',6)];
-  const web=()=>[mwmbl,margin,hn(4),stack(4),places(3),google(),searx(),meili(),typesense(),opensearch()];
+  const web=()=>[mwmbl,margin,hn(4),stack(4),places(3)];
   if(m==='web')return web();
   if(m==='wiki')return fam(10,4);
   if(m==='archive')return[archive(14),books(10)];
@@ -392,6 +364,28 @@ async function load(){
   if(r.list.length||r.dead)more();
   busy(false);
 }
+let gready=null;
+function gload(){
+  if(gready)return gready;
+  gready=new Promise((ok,no)=>{
+    window.__gcse={parsetags:'explicit',callback:ok};
+    const sc=document.createElement('script');
+    sc.async=true;sc.src='https://cse.google.com/cse.js?cx='+GOOGLE_CX;
+    sc.onerror=()=>{gready=null;no()};
+    document.head.append(sc);
+  });
+  return gready;
+}
+async function googleBox(s,id){
+  const box=$('#gbox');
+  box.hidden=false;
+  if(!box.dataset.init){box.dataset.init='1';box.open=matchMedia('(min-width:1100px)').matches}
+  try{await gload()}catch{if(id===run)box.hidden=true;return}
+  if(id!==run)return;
+  const G=google.search.cse.element;
+  if(!G.getElement('orient'))G.render({div:'gcse',tag:'searchresults-only',gname:'orient',attributes:{autoSearchOnLoad:false,linkTarget:OPEN}});
+  G.getElement('orient').execute(s);
+}
 async function search(s,hist=true){
   s=s.trim();if(!s)return;
   const id=++run;
@@ -399,6 +393,9 @@ async function search(s,hist=true){
   cur={s,page:0,seen:new Set(),m:mode};
   document.body.classList.add('res');
   document.title=s+' – Orient';
+  const isWeb=mode==='web';
+  $('#gbox').hidden=!isWeb;$('#cols').classList.toggle('g',isWeb);
+  if(isWeb)googleBox(s,id);
   $('#out').replaceChildren(skeleton(9));
   busy(true);
   const r=await pull();
@@ -413,6 +410,7 @@ async function search(s,hist=true){
 
 function home(hist=true){
   run++;
+  $('#gbox').hidden=true;$('#cols').classList.remove('g');
   if(hist)push('');
   document.body.classList.remove('res');
   document.title='Orient';
@@ -437,35 +435,11 @@ function boot(){
 }
 
 /* ---------- options sheet ---------- */
-const FORM={
-  google:['Google',[['key','API key','Custom Search API key']],'The search engine ID is already set. Google needs a free API key (100 searches a day).'],
-  searxng:['SearXNG',[['url','Address','https://search.example.org']]],
-  meili:['Meilisearch',[['url','Address','https://ms.example.com'],['index','Index name',''],['key','Search key','']]],
-  typesense:['Typesense',[['url','Address','https://ts.example.com'],['collection','Collection',''],['by','Fields to search','title,description'],['key','Search-only key','']]],
-  opensearch:['OpenSearch',[['url','Address','https://os.example.com'],['index','Index name',''],['auth','Login (user:password), if needed','']]]
-};
-function conn(){
-  const box=$('#conn');box.replaceChildren();
-  for(const k in FORM){
-    const [name,fields,note]=FORM[k],d=el('details');
-    d.append(el('summary',null,name));
-    if(note)d.append(el('p','hint',note));
-    fields.forEach(([f,label,ph])=>{
-      const l=el('label',null,label),i=el('input','in');
-      i.value=CFG[k][f]||'';i.placeholder=ph;i.autocomplete='off';i.spellcheck=false;
-      if(/key|auth/.test(f))i.type='password';
-      i.oninput=()=>{CFG[k][f]=i.value.trim();saveCfg()};
-      l.append(i);d.append(l);
-    });
-    box.append(d);
-  }
-}
 function sheet(on){
   $('#sheet').classList.toggle('on',on);
   if(on){
     document.querySelectorAll('[name=ot]').forEach(r=>r.checked=r.value===OPEN);
     $('#cph').checked=PHOTOS;
-    conn();
   }
 }
 document.querySelectorAll('[name=ot]').forEach(r=>r.onchange=()=>{
